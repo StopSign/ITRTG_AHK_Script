@@ -68,15 +68,12 @@ return
 	CoordMode, mouse, screen
 	CoordMode, pixel, screen
 	sleep, 100
-	import()
-	start()
+	startOver()
 	Tooltip,
 return
 
 startOver() {
-	MCS(549, 482, 50) ;info
-	MCS(523, 597, 200) ;import
-	MCS(401, 691, 400) ;yes
+	import()
 	killGods2()
 	start()
 }
@@ -85,12 +82,11 @@ start() {
 	go := 0
 	while(!GetKeyState("end")) {
 		if (go) {
+		}
 		rebirth()
 		trainTabAndMonsterStart()
-		killGods()
 		Create1()
 		Monuments1()
-		}
 		clickStats()
 		DivinityGen1()
 		go := 1
@@ -174,21 +170,23 @@ trainTabAndMonsterStart()() {
 	clickScrollBar(1242, 561)
 	MCS(1068, 577, 50) ;+
 
-	MCS(385, 480, 150) ;stats
+	MCS(385, 480, 50) ;stats
 }
 
 Create1() {
 	if(GetKeyState("end"))
 		return
 	creatinggreen := 0x3C8D00
+	putClonesOnFightBeforeBuy()
+	prepareCreate()
+	buyDivinity()
+	removeClonesFromFight()
+	killGods()
 	prepareCreate()
 	closeBuyIfOpen()
-	MCS(1104, 639, 50) ;sh clone
 	checkAutoBuyCreateOn()
-	MCS(1044, 740, 50) ;to scroll
+	MCS(888, 740, 50) ;to scroll
 	down3()
-	buyDivinity()
-	sleep, 100
 	checkCreateClonesOff()
 	MCS(1101, 668, 50) ;Tree
 	waitForColorVisibleQuick(940, 661, creatinggreen)
@@ -210,10 +208,10 @@ Monuments1() {
 	MCS(826, 481, 50) ;stop at finish on
 	MCS(1222, 448, 50) ;max
 	clickScrollBar(1241, 563) ;scroll up
-	MCS(1119, 574, 150) ;mighty statue
-	MCS(1120, 654, 150) ;mystic garden
-	MCS(1118, 740, 150) ;tomb of gods
-	MCS(1120, 819, 150) ;everlasting lighthouse
+	MCS(1119, 574, 250) ;mighty statue
+	MCS(1120, 654, 250) ;mystic garden
+	MCS(1118, 740, 250) ;tomb of gods
+	MCS(1120, 819, 250) ;everlasting lighthouse
 	waitForColorNotVisibleQuick(655, 808, 0x623C24)
 	clickScrollBar(1241, 888)
 	MCS(1121, 672, 50) ;godly statue
@@ -236,6 +234,7 @@ divinityGen1() {
 	MCS(1224, 451, 50) ;MAX
 	MCS(1087, 578, 50) ;divinity gen +
 	buyStone(-1)
+	MCS(646, 353, 50) ;build
 	MCS(1017, 396, 50) ;divinity tab
 	; waitForColorVisibleQuick(668, 568, 0x623C24)
 	waitForColorNotVisibleQuick(668, 568, 0x623C24)
@@ -253,7 +252,29 @@ divinityGen1() {
 	shiftToMystic()
 }
 
+;sets up positioning
+putClonesOnFightBeforeBuy() {
+	MCS(646, 391, 50) ;click fight tab
+	MCS(829, 395, 50) ;click monster tab
+	clickScrollBar(1241, 562)
+	down4()
+	down4()
+	MCS(1172, 689, 50)
+	MCS(1174, 722, 50)
+	MCS(1172, 760, 50)
+	MCS(1173, 796, 50) ;gargoyle cap
+}
 
+;reliant on positioning
+removeClonesFromFight() {
+	MCS(646, 391, 50) ;click fight tab
+	MCS(829, 395, 50) ;click monster tab
+	MCS(1122, 722, 50)
+	MCS(1122, 760, 50)
+	MCS(1122, 796, 50) ;gargoyle -
+}
+
+; can start from any tab
 Monuments2() {
 	if(GetKeyState("end"))
 	 return
@@ -285,6 +306,10 @@ MysticGardenUpgrades() {
 }
 
 Monuments3() {
+	
+	firstLoopLength := 110
+	secondLoopLength := 45
+
 	if(GetKeyState("end"))
 		return
 	killGodsLess(4)
@@ -293,7 +318,7 @@ Monuments3() {
 	x := 0
 	MouseGetPos, Px, Py
 	MCS(1119, 654, 500) ;mystic loop
-	loop, 55 {
+	loop, %firstLoopLength% {
 		if(GetKeyState("end"))
 			return
 		MouseGetPos, Px2, Py2
@@ -301,7 +326,7 @@ Monuments3() {
 		if((Px != Px2) || (Py != Py2)) {
 			MouseGetPos, Px, Py
 			if(x < 20)
-				Tooltip, Go ahead and move the mouse`nIt won't be as good as the autoclick`nWhen you stop moving the mouse`nIt will go back to clicking`nEnd key to stop the script%x% half seconds out of 55
+				Tooltip, Go ahead and move the mouse`nIt won't be as good as the autoclick`nWhen you stop moving the mouse`nIt will go back to clicking`nEnd key to stop the script%x% half seconds out of %firstLoopLength%
 			else
 				Tooltip
 			sleep, 500
@@ -310,14 +335,14 @@ Monuments3() {
 			MCS(1119, 654, 500) ;mystic loop
 			MouseGetPos, Px, Py
 			x++
-			Tooltip, %x% half seconds out of 55
+			Tooltip, %x% half seconds out of %firstLoopLength%
 		}
 	}
 	x := 0
-	loop, 45 {
+	loop, %secondLoopLength% {
 		if(GetKeyState("end"))
 			return
-		Tooltip, %x% quarter seconds out of 45
+		Tooltip, %x% quarter seconds out of %secondLoopLength%
 		MCS(1121, 576, 250) ;mighty loop
 		x++
 	}
@@ -373,7 +398,7 @@ Create2() {
 	waitForColorVisibleQuick(1010, 756, green)
 	MCS(1100, 820, 50) ;village
 	waitForColorVisibleQuick(1010, 816, green)
-	MCST(1104, 727, 25) ;river
+	MCST(1104, 727, 20) ;river
 	; MCST(1104, 819, 8) ;village
 	; createAmount("Continent", 6)
 	sleep, 100
