@@ -283,7 +283,7 @@ Monuments2() {
 	prepareCreate3()
 	checkAutoBuyCreateOff()
 	MCS(1101, 670, 50) ;nation
-	changeNumber2(794, 451, 823, 141) ;7, 286 is 10 upgrade
+	changeNumber2(794, 451, 823, 70) ;7, 286 is 10 upgrade
 	; maxCreate()
 	checkCreateClonesOff()
 	checkAutoBuyCreateOn()
@@ -307,8 +307,8 @@ MysticGardenUpgrades() {
 
 Monuments3() {
 	
-	firstLoopLength := 110
-	secondLoopLength := 45
+	firstLoopLength := 93
+	secondLoopLength := 38
 
 	if(GetKeyState("end"))
 		return
@@ -398,7 +398,7 @@ Create2() {
 	waitForColorVisibleQuick(1010, 756, green)
 	MCS(1100, 820, 50) ;village
 	waitForColorVisibleQuick(1010, 816, green)
-	MCST(1104, 727, 20) ;river
+	MCST(1104, 727, 21) ;river
 	; MCST(1104, 819, 8) ;village
 	; createAmount("Continent", 6)
 	sleep, 100
