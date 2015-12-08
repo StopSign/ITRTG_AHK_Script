@@ -38,7 +38,7 @@ MCST(x, y, t) {
 !2::
 While(!GetKeyState("end")) {
 Click
-sleep, 500
+sleep, 10
 }
 return
 
@@ -191,7 +191,7 @@ sleep, 150
 
 
 
-;_________________GO BACK
+;_________________GO BACK DOWN
 
 
 
@@ -223,10 +223,15 @@ CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 blue := 0x67422A
 import()
+go := 0
 While(!GetKeyState("End")) {
+if(go) {
+}
 rebirth()
 ;buyMainBuilding()
 buyDesignHall()
+;buyResearchCenter()
+;buyMainBuilding()
 clickStaff()
 clickHireWorker()
 clickHireSalesman()
@@ -235,7 +240,7 @@ clickFirstCarSalesman(1)
 buyAds(0, 2)
 if(GetKeyState("end"))
 	return
-sleep, 2000
+sleep, 8000
 autoPrice(0)
 getMaxLoan()
 ;buyProductionHall()
@@ -248,48 +253,46 @@ waitForColorNotVisibleQuick(593, 510, blue) ;design hall
 Tooltip
 buyDesignHall()
 clickHireDesigner()
+
+
 designTheCarPart1()
-;clickBuildings()
-;waitForColorNotVisibleQuick(593, 440, blue) ;main office
+
+
 save()
 }
 return
 
-designTheCarPart1() {
+designTheCarPart1() { ;max speed/HP
 if(GetKeyState("end"))
 	return
 clickDesign()
 clickMax()
-makeFirstEngine()
-MCS(1043, 589, 2000)
 checkButtonOn()
-Tooltip, waiting for engine
-waitForColorNotVisibleQuick(593, 581, 0x67422A)
-Tooltip
+;makeBrakes()
+;makeTires()
+;makeTank()
+makeEngine()
+;makeCooler()
+;makeElectronics()
 makeChassis()
-MCS(1043, 589, 2000)
-Tooltip, waiting for chassis
-waitForColorNotVisibleQuick(593, 581, 0x67422A)
-Tooltip
 makeBody()
-MCS(1043, 589, 2000)
-Tooltip, waiting for body
-waitForColorNotVisibleQuick(593, 581, 0x67422A)
-Tooltip
-MCS(1213, 478, 200)
+MCS(1213, 478, 200) ;car
 firstBluePrintSpot()
 MCS(747, 562, 200) ;chassis
-MCS(1099, 574, 200)
+MCS(1099, 574, 200) ;2nd
 MCS(752, 595, 200) ;tires
-MCS(1095, 540, 200)
+MCS(1095, 540, 200) ;1
 MCS(744, 629, 200) ;brakes
-MCS(1095, 540, 200)
+MCS(1095, 540, 200) ;1
+; MCS(1095, 574, 200)
 MCS(749, 664, 200) ;engine
 MCS(1094, 576, 200)
 MCS(1080, 559, 200) ;electronics
-MCS(1090, 540, 200)
+MCS(1095, 540, 200) ;1
+; MCS(1090, 574, 200)
 MCS(1084, 593, 200) ;cooler
-MCS(1090, 540, 200)
+MCS(1095, 540, 200) ;1
+; MCS(1090, 574, 200)
 MCS(1087, 633, 200) ;tank
 MCS(1090, 540, 200)
 MCS(1076, 666, 200) ;body
@@ -308,37 +311,104 @@ waitForColorVisibleQuick(899, 582, 0xDEDEDB)
 }
 
 checkButtonOn() {
-if(colorIsNotVisibleQuick(1124, 438, 0x3F9547)) {
-MCS(1129, 445, 200)
-}
+	getOffButtonColor() ;todo something with this
+	global colorOfOffButton
+	if(colorIsVisible(1115, 439, 1120, 442, colorOfOffButton)) {
+		MCS(1129, 445, 200)
+	}
 }
 
-makeBody() {
+getOffButtonColor() {
+global colorOfOffButton
+colorOfOffButton := 0x373902
+}
+
+makeStart(tabX) {
 if(GetKeyState("end"))
 	return
-	MCS(1141, 478, 200)
+	MCS(tabX, 478, 200)
 	firstBluePrintSpot()
 	clearAll()
-	loop, 8
-	MCS(929, 703, 100)
-	loop, 9
-	MCS(929, 522, 100)
+}
+
+makeWrapUp(name) {
+	global blue
 	bluePrintCreate()
+if(GetKeyState("end"))
+	return
+	checkButtonOn()
+	MCS(1043, 589, 2000) ;add
+	Tooltip, waiting for %name%
+	waitForColorNotVisibleQuick(593, 581, blue)
+	Tooltip
+}
+
+!5::
+getDefaults()
+check()
+MsgBox, %x%
+return
+
+check() {
+global x
+MsgBox, %x%
+}
+
+getDefaults() {
+global
+blue := 0x67422A
+}
+
+makeTires() {
+	makeStart(702)
+	makeWrapUp("tires")
+}
+makeBrakes() {
+	makeStart(776)
+	loop, 8
+		MCS(930, 733, 50)
+	loop, 16
+		MCS(932, 763, 50)
+	makeWrapUp("brakes")
+}
+makeCooler() {
+	makeStart(996)
+	loop, 25
+		MCS(931, 732, 50) ;capacity
+	makeWrapUp("cooler")
+}
+makeBody() {
+	makeStart(1141)
+	loop, 9
+		MCS(924, 710, 50) ;capacity
+	loop, 6
+		MCS(927, 646, 50) ;weight
+	makeWrapUp("body")
 }
 
 makeChassis() {
-if(GetKeyState("end"))
-	return
-	MCS(628, 479, 200) ;chassis
-	firstBluePrintSpot()
-	clearAll()
-	loop, 11 {
-		MCS(933, 733, 100)
-	}
-	loop, 8 {
-		MCS(928, 524, 100)
-	}
-	bluePrintCreate()
+	makeStart(630)
+	loop, 3
+		MCS(930, 734, 50) ;max weight
+	loop, 14
+		MCS(928, 675, 50) ;weight
+	makeWrapUp("chassis")
+}
+
+makeEngine() {
+	makeStart(847)
+	MCS(918, 795, 100) ;cylinder
+	loop, 7
+		MCS(929, 762, 100) ;power
+	loop, 9
+		MCS(926, 704, 100) ;efficiency
+	makeWrapUp("engine")
+}
+makeElectronics() {
+	makeStart(847)
+	loop, 17
+		MCS(927, 705, 50)
+	makeWrapUp("electronics")
 }
 
 bluePrintCreate() {
@@ -349,40 +419,25 @@ firstBluePrintSpot() {
 	MCS(1112, 601, 200) ;blueprint
 }
 
-makeFirstEngine() {
-if(GetKeyState("end"))
-	return
-	MCS(852, 478, 200) ;engine
-	firstBluePrintSpot()
-	clearAll()
-	MCS(931, 794, 200) ;cylinder
-	loop, 9 {
-		MCS(932, 765, 200) ;power
-	}
-	loop, 9 {
-		MCS(930, 705, 200) ;efficiency
-	}
-	bluePrintCreate()
-}
 
 clearAll() {
-	loop, 3 {
+	loop, 2 {
 		if(GetKeyState("end"))
 			return
-		MCS(880, 524, 100)
-		MCS(880, 553, 100)
-		MCS(880, 584, 100)
-		MCS(880, 614, 100)
-		MCS(880, 644, 100)
-		MCS(880, 674, 100)
-		MCS(880, 704, 100)
-		MCS(880, 734, 100)
-		MCS(880, 764, 100)
+		MCS(880, 524, 50)
+		MCS(880, 553, 50)
+		MCS(880, 584, 50)
+		MCS(880, 614, 50)
+		MCS(880, 644, 50)
+		MCS(880, 674, 50)
+		MCS(880, 704, 50)
+		MCS(880, 734, 50)
+		MCS(880, 764, 50)
 	}
 }
 
 clickHireWorker() {
-clickMax()
+click10()
 MCS(1187, 569, 200)
 clickHireYes()
 }
