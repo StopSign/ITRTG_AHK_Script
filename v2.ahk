@@ -274,12 +274,12 @@ checkButtonOn()
 makeEngine()
 ;makeCooler()
 ;makeElectronics()
-makeChassis()
+;makeChassis()
 makeBody()
 MCS(1213, 478, 200) ;car
 firstBluePrintSpot()
 MCS(747, 562, 200) ;chassis
-MCS(1099, 574, 200) ;2nd
+MCS(1099, 540, 200) ;2nd
 MCS(752, 595, 200) ;tires
 MCS(1095, 540, 200) ;1
 MCS(744, 629, 200) ;brakes
@@ -405,7 +405,7 @@ makeEngine() {
 	makeWrapUp("engine")
 }
 makeElectronics() {
-	makeStart(847)
+	makeStart(926)
 	loop, 17
 		MCS(927, 705, 50)
 	makeWrapUp("electronics")
