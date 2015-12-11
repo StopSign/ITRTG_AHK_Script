@@ -307,7 +307,7 @@ Tooltip
 clickHireDesigner()
 clickDesign()
 MCS(1018, 587, 1000) ;add
-waitForColorVisibleQuick(899, 582, 0xDEDEDB)
+waitForColorVisibleQuick(899, 582, 0xFCFCFB)
 }
 
 checkButtonOn() {

@@ -53,7 +53,7 @@ return
 !2::
 While(!GetKeyState("end")) {
 Click
-sleep, 500
+sleep, 15
 }
 return
 
@@ -1232,3 +1232,4 @@ MCS(852, 877, wt)
 clickGiveHeal(wt){
 MCS(697, 875, wt)
 }
+
