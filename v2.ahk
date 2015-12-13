@@ -318,6 +318,10 @@ shouldBuildResearch := 1
 shouldBuildDesign := 1
 designHallDone := 0
 researchDone := 0
+researchBuildings := 0
+researchBuildingsStopAt := 3
+designBuildings := 0
+designBuildingsStopAt := 0
 }
 
 ;fds to search
@@ -350,6 +354,7 @@ While(!GetKeyState("End")) {
 		return
 	waitForBuildingToFinishRebuildAndHandleStaff(4, 1) ;research center
 	waitForBuildingToFinishRebuildAndHandleStaff(3, 1) ;design hall
+
 	designTheCarPart1()
 	waitForCarToFinish(1)
 	getMaxLoan()
@@ -388,6 +393,10 @@ global shouldBuildResearch
 global shouldBuildDesign
 global designHallDone
 global researchDone
+global researchBuildings
+global researchBuildingsStopAt
+global designBuildings
+global designBuildingsStopAt
 if(GetKeyState("end") || (designHallDone && researchDone))
 	return
 global blue
@@ -395,19 +404,24 @@ clickBuildings()
 sleep, 200
 if(shouldBuildMain && colorIsNotVisibleQuick(593, 441, blue)) { ;main office
 	buildingButton(441)
+	sleep, 200
 } 
 if(!designHallDone && colorIsNotVisibleQuick(593, 511, blue)) { ;design hall
-	if(shouldBuildDesign)
+	if(shouldBuildDesign && (designBuildings < designBuildingsStopAt || designBuildingsStopAt == 0)) {
 		buildingButton(511)
-	else
+		designBuildings++
+	} else
 		designHallDone := 1
 	handleAfterBuild(3, buildRow)
+	sleep, 200
 } 
 if(!researchDone && colorIsNotVisibleQuick(593, 546, blue)) { ;research center
-	if(shouldBuildResearch)
+	if(shouldBuildResearch && (researchBuildings < researchBuildingsStopAt || researchBuildingsStopAt == 0)) {
 		buildingButton(546)
-	else
+		researchBuildings++
+	} else
 		researchDone := 1
+	sleep, 200
 	handleAfterBuild(4, buildRow)
 }
 }
@@ -468,8 +482,8 @@ waitForBuilding(row, willRebuild) {
 	clickBuildings()
 	stringToSend = waiting for %name%
 	stableTooltip(stringToSend, 1)
-	waitForColorVisibleQuick(593, y, blue) ;progress bar color
-	waitForColorNotVisibleQuick(593, y, blue)
+	;waitForColorVisibleQuick(593, y, blue)
+	waitForColorNotVisibleQuick(593, y, blue) ;progress bar color
 	Tooltip
 	if(willRebuild)
 		buildingButton(y)
@@ -500,8 +514,8 @@ designTheCarPart1() { ;max speed/HP
 	MCS(1213, 478, 50) ;car
 	bluePrintSpot(1)
 	chooseLatestPartsWhileCreatingCar()
-	MCS(1204, 777, 50) ;car create
-	MCS(1018, 587, 1000) ;designers on +
+	MCS(1204, 777, 150) ;car create
+	MCS(1018, 587, 200) ;designers on +
 }
 
 designTheCarPart2() { ;fuel/mpg
@@ -619,21 +633,21 @@ return
 
 chooseLatestPartsWhileCreatingCar() {
 	MCS(745, 558, 50) ;Chassis
-	findLowestColor(1089, 521, 1089, 750, 0x202101) ;button color
+	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
 	MCS(745, 594, 50) ;Tires
-	findLowestColor(1089, 521, 1089, 750, 0x202101) ;button color
+	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
 	MCS(746, 630, 50) ;Brakes
-	findLowestColor(1089, 521, 1089, 750, 0x202101) ;button color
+	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
 	MCS(746, 665, 50) ;Engine
-	findLowestColor(1089, 521, 1089, 750, 0x202101) ;button color
+	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
 	MCS(1082, 559, 50) ;Electronics
-	findLowestColor(1089, 521, 1089, 750, 0x202101) ;button color
+	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
 	MCS(1082, 596, 50) ;Cooler
-	findLowestColor(1089, 521, 1089, 750, 0x202101) ;button color
+	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
 	MCS(1083, 630, 50) ;Tanks
-	findLowestColor(1089, 521, 1089, 750, 0x202101) ;button color
+	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
 	MCS(1081, 664, 50) ;Body
-	findLowestColor(1089, 521, 1089, 750, 0x202101) ;button color
+	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
 }
 
 findLowestColor(x, y, x2, y2, color) {
