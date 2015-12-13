@@ -79,23 +79,24 @@ MCST(x, y, t) {
 		if(GetKeyState("end"))
 		return
 		if(GetKeyState("Home")) {
-			stableTooltip("continuing...")
+			stableTooltip("continuing...", 0)
 			sleep, 1000
 			Tooltip
 			return
 		}
-		stableTooltip("%count% out of %t%")
+		stableTooltip("%count% out of %t%", 0)
 		sleep, 1000
 		count++
 	}
 	Tooltip,
 }
 
-stableTooltip(theString) {
+stableTooltip(theString, isSafeAfter) {
 	global tooltipX
 	global tooltipY
 	Tooltip, %theString%, %tooltipX%, %tooltipY%
-	MCS(348, 478, 50)
+	if(isSafeAfter)
+		MCS(348, 478, 50)
 }
 
 !2:: ;autoclicker
@@ -324,6 +325,7 @@ researchDone := 0
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 CoordMode, Tooltip, Screen
+SetFormat, float, 0.2
 getDefaults()
 import()
 go := 0
@@ -369,7 +371,7 @@ return
 waitForCarToFinish(row) {
 	global carFinishedWhite
 	y := 545 + row * 35
-	stableTooltip("waiting for the car design to finish")
+	stableTooltip("waiting for the car design to finish", 0)
 	clickDesign()
 	MCS(1030, y, 200) ;designers on +
 	while(!GetKeyState("end") && colorIsNotVisibleQuick(899, y, carFinishedWhite)) { ;wait for the white of "finished" to be seen
@@ -451,11 +453,22 @@ waitForBuilding(row, willRebuild) {
 	} else if(row == 3) {
 		name = Design Hall
 	} else if(row == 4) {
+		clickCarSouls()
+		count := 0
+		loop, 16 {
+			if(GetKeyState("end"))
+				return
+			count++
+			theMath := (count / 2)
+			theString = Viewing car souls for %theMath% seconds `nOut of 8
+			stableTooltip(theString, 0)
+			sleep, 500
+		}
 		name = Research Center
 	}
 	clickBuildings()
 	stringToSend = waiting for %name%
-	stableTooltip(stringToSend)
+	stableTooltip(stringToSend, 1)
 	waitForColorVisibleQuick(593, y, blue) ;progress bar color
 	waitForColorNotVisibleQuick(593, y, blue)
 	Tooltip
@@ -550,7 +563,7 @@ makeStart(tabX, row, name) {
 if(GetKeyState("end"))
 	return
 	stringToSend = waiting for %name%
-	stableTooltip(stringToSend)
+	stableTooltip(stringToSend, 1)
 	MCS(tabX, 478, 50)
 	bluePrintSpot(row)
 	clearAll()
@@ -645,7 +658,7 @@ makeTires(row) {
 	if(row == 1) {
 		loop, 3
 			MCS(928, 734, fastClickSpeed) ;HeatProduction
-		loop, 14
+		loop, 17
 			MCS(929, 705, fastClickSpeed) ;Grip
 	} else {
 		loop, 20
@@ -705,7 +718,7 @@ makeBody(row) {
 	if(row == 1) {
 		loop, 9
 			MCS(924, 710, fastClickSpeed) ;capacity
-		loop, 6
+		loop, 11
 			MCS(927, 646, fastClickSpeed) ;weight
 	} else {
 		loop, 20
@@ -722,7 +735,7 @@ makeChassis(row) {
 	if(row == 1) {
 		loop, 3
 			MCS(930, 734, fastClickSpeed) ;max weight
-		loop, 14
+		loop, 17
 			MCS(928, 675, fastClickSpeed) ;weight
 	} else {
 		loop, 20
@@ -740,13 +753,13 @@ makeEngine(row) {
 		MCS(918, 795, fastClickSpeed) ;cylinder
 		loop, 7
 			MCS(929, 762, fastClickSpeed) ;power
-		loop, 9
+		loop, 16
 			MCS(926, 704, fastClickSpeed) ;efficiency
 	} else if(row == 3) {
-		loop, 20
+		loop, 25
 			MCS(929, 524, fastClickSpeed) ;Visual
 	} else {
-		loop, 20
+		loop, 25
 			MCS(917, 701, fastClickSpeed) ;Efficiency
 	}
 	makeWrapUp(row)
@@ -757,7 +770,7 @@ makeElectronics(row) {
 		return
 	makeStart(926, row, "electronics")
 	if(row == 1) {
-		loop, 17
+		loop, 20
 			MCS(927, 705, fastClickSpeed) ;efficiency
 	} else {
 		loop, 20
