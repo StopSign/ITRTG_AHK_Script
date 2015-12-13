@@ -313,15 +313,18 @@ carFinishedWhite := 0xFCFCFB
 tooltipX := 786
 tooltipY := 332
 fastClickSpeed := 50
-shouldBuildMain := 1
 shouldBuildResearch := 1
 shouldBuildDesign := 1
 designHallDone := 0
 researchDone := 0
-researchBuildings := 0
+mainBuildings := 2
+mainBuildingsStopAt := 4
+researchBuildings := 1
 researchBuildingsStopAt := 3
-designBuildings := 0
+designBuildings := 1
 designBuildingsStopAt := 0
+buttonColor := 0x202101
+hoverButtonColor := 0x313202
 }
 
 ;fds to search
@@ -338,18 +341,15 @@ While(!GetKeyState("End")) {
 	}
 	rebirth()
 	buyMainBuilding()
-	buyDesignHall()
 	buyResearchCenter()
-	;clickHireWorker()
-	;clickHireSalesman()
-	;clickFirstCarWorker(1)
-	;clickFirstCarSalesman(1)
-	;buyAds(1, 2)
-	if(GetKeyState("end"))
-		return
-	;autoPrice(1)
-	;buyProductionHall()
-	clickCarSouls()
+	buyDesignHall()
+	buyProductionHall()
+	clickHireWorker()
+	clickCarWorker(1)
+	clickHireSalesman()
+	clickCarSalesman(1)
+	buyAds(1, 2)
+	autoPrice(1)
 	if(GetKeyState("end"))
 		return
 	waitForBuildingToFinishRebuildAndHandleStaff(4, 1) ;research center
@@ -358,7 +358,6 @@ While(!GetKeyState("End")) {
 	designTheCarPart1()
 	waitForCarToFinish(1)
 	getMaxLoan()
-	shouldBuildMain := 0
 	designTheCarPart2()
 	shouldBuildResearch := 0
 	waitForCarToFinish(2)
@@ -388,42 +387,60 @@ waitForCarToFinish(row) {
 }
 
 checkForBuildingReplace(buildRow) {
-global shouldBuildMain
-global shouldBuildResearch
-global shouldBuildDesign
-global designHallDone
-global researchDone
-global researchBuildings
-global researchBuildingsStopAt
-global designBuildings
-global designBuildingsStopAt
-if(GetKeyState("end") || (designHallDone && researchDone))
-	return
-global blue
-clickBuildings()
-sleep, 200
-if(shouldBuildMain && colorIsNotVisibleQuick(593, 441, blue)) { ;main office
-	buildingButton(441)
+	global shouldBuildResearch
+	global shouldBuildDesign
+	global designHallDone
+	global researchDone
+	global mainBuildings
+	global mainBuildingsStopAt
+	global researchBuildings
+	global researchBuildingsStopAt
+	global designBuildings
+	global designBuildingsStopAt
+	if(GetKeyState("end") || (designHallDone && researchDone))
+		return
+	global blue
+	clickBuildings()
 	sleep, 200
-} 
-if(!designHallDone && colorIsNotVisibleQuick(593, 511, blue)) { ;design hall
-	if(shouldBuildDesign && (designBuildings < designBuildingsStopAt || designBuildingsStopAt == 0)) {
-		buildingButton(511)
-		designBuildings++
-	} else
-		designHallDone := 1
-	handleAfterBuild(3, buildRow)
-	sleep, 200
-} 
-if(!researchDone && colorIsNotVisibleQuick(593, 546, blue)) { ;research center
-	if(shouldBuildResearch && (researchBuildings < researchBuildingsStopAt || researchBuildingsStopAt == 0)) {
-		buildingButton(546)
-		researchBuildings++
-	} else
-		researchDone := 1
-	sleep, 200
-	handleAfterBuild(4, buildRow)
-}
+	if(colorIsNotVisibleQuick(593, 441, blue)) { ;main office
+		if((mainBuildings < mainBuildingsStopAt) || mainBuildingsStopAt == 0) {
+			buildingButton(441)
+			mainBuildings++
+			if(mainBuildings == 2) {
+			} else if(mainBuildings==4) {
+				clickHireWorker()
+				clickCarWorker(1)
+				clickHireSalesman()
+				clickCarSalesman(1)
+			}else if(mainBuildings==3) {
+				clickHireSalesman()
+				clickHireSalesman()
+				clickCarSalesman(1)
+			}
+			clickBuildings()
+			sleep, 200
+		}
+	} 
+	if(!designHallDone && colorIsNotVisibleQuick(593, 511, blue)) { ;design hall
+		if(shouldBuildDesign && ((designBuildings < designBuildingsStopAt) || designBuildingsStopAt == 0)) {
+			buildingButton(511)
+			designBuildings++
+		} else
+			designHallDone := 1
+		sleep, 200
+		handleAfterBuild(3, buildRow)
+		sleep, 200
+	} 
+	if(!researchDone && colorIsNotVisibleQuick(593, 546, blue)) { ;research center
+		if(shouldBuildResearch && ((researchBuildings < researchBuildingsStopAt) || researchBuildingsStopAt == 0)) {
+			buildingButton(546)
+			researchBuildings++
+		} else
+			researchDone := 1
+		sleep, 200
+		handleAfterBuild(4, buildRow)
+		sleep, 200
+	}
 }
 
 handleAfterBuild(row, buildRow) {
@@ -468,12 +485,12 @@ waitForBuilding(row, willRebuild) {
 	} else if(row == 4) {
 		clickCarSouls()
 		count := 0
-		loop, 16 {
+		loop, 10 {
 			if(GetKeyState("end"))
 				return
 			count++
 			theMath := (count / 2)
-			theString = Viewing car souls for %theMath% seconds `nOut of 8
+			theString = Viewing car souls for %theMath% seconds `nOut of 5
 			stableTooltip(theString, 0)
 			sleep, 500
 		}
@@ -627,43 +644,53 @@ MsgBox, %blue%
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 CoordMode, Tooltip, Screen
+getDefaults()
 chooseLatestPartsWhileCreatingCar()
 
 return
 
 chooseLatestPartsWhileCreatingCar() {
-	MCS(745, 558, 50) ;Chassis
-	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
-	MCS(745, 594, 50) ;Tires
-	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
-	MCS(746, 630, 50) ;Brakes
-	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
-	MCS(746, 665, 50) ;Engine
-	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
-	MCS(1082, 559, 50) ;Electronics
-	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
-	MCS(1082, 596, 50) ;Cooler
-	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
-	MCS(1083, 630, 50) ;Tanks
-	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
-	MCS(1081, 664, 50) ;Body
-	findLowestColor(1068, 521, 1089, 650, 0x202101) ;button color
+	MCS(745, 558, 100) ;Chassis
+	findLowestColor(1068, 521, 1068, 650)
+	MCS(745, 594, 100) ;Tires
+	findLowestColor(1068, 521, 1068, 650)
+	MCS(746, 630, 100) ;Brakes
+	findLowestColor(1068, 521, 1068, 650)
+	MCS(746, 665, 100) ;Engine
+	findLowestColor(1068, 521, 1068, 650)
+	MCS(1082, 559, 100) ;Electronics
+	findLowestColor(1068, 521, 1068, 650)
+	MCS(1082, 596, 100) ;Cooler
+	findLowestColor(1068, 521, 1068, 650)
+	MCS(1083, 630, 100) ;Tanks
+	findLowestColor(1068, 521, 1068, 650)
+	MCS(1081, 664, 100) ;Body
+	findLowestColor(1068, 521, 1068, 650)
+	sleep, 100
 }
 
-findLowestColor(x, y, x2, y2, color) {
+findLowestColor(x, y, x2, y2) {
+	global buttonColor
+	global hoverButtonColor
 	if(GetKeyState("End"))
 		return
 	MouseMove, 888, 585, 1
 	loopY := y2
 	while(loopY > y1) {
-		PixelSearch, Px, Py, %x%, %loopY%, %x2%, %loopY%, %color%, 3, Fast
+		PixelSearch, Px, Py, %x%, %loopY%, %x2%, %loopY%, %buttonColor%, 3, Fast
 		if (ErrorLevel) {
-		
+			;PixelSearch, Px2, Py2, %x%, %loopY%, %x2%, %loopY%, %hoverButtonColor%, 3, Fast
+			;if (ErrorLevel) {
+			;
+			;} else {
+			;	MCS(Px2, Py2, 50)
+			;	return
+			;}
 		} else {
 			MCS(Px, Py, 50)
 			return
 		}
-		loopY := loopY - 12
+		loopY := loopY - 6
 	}
 }
 
@@ -902,103 +929,103 @@ save() {
 ;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;---------------------------------------------
 clickInfo() {
-MCS(500, 838, 50)
+	MCS(500, 838, 50)
 }
 clickMax() {
-MCS(1228, 412, 50)
+	MCS(1228, 412, 50)
 }
 clickStaff() {
-MCS(500, 700, 50)
+	MCS(500, 700, 50)
 }
 clickMarket() {
-MCS(390, 701, 50) 
+	MCS(390, 701, 50) 
 }
 clickBuildings() {
-MCS(390, 771, 50)
+	MCS(390, 771, 50)
 }
 clickStatistics() {
-MCS(497, 804, 50)
+	MCS(497, 804, 50)
 }
 clickCarSouls() {
-MCS(641, 352, 50)
+	MCS(641, 352, 50)
 }
 clickProduction() {
-MCS(494, 770, 50) 
+	MCS(494, 770, 50) 
 }
 clickDesign() {
-MCS(388, 805, 50)
+	MCS(388, 805, 50)
 }
 clickBalance() {
-MCS(391, 842, 50)
+	MCS(391, 842, 50)
 }
 clickGetLoan() {
-clickBalance()
-MCS(1029, 417, 50)
+	clickBalance()
+	MCS(1029, 417, 50)
 }
-clickFirstCarWorker(isAdd) {
-clickMax()
-clickProduction()
-if(isAdd)
-MCS(1022, 516, 50)
-else
-MCS(1064, 511, 50)
+clickCarWorker(isAdd) {
+	clickMax()
+	clickProduction()
+	if(isAdd)
+		MCS(1022, 516, 50)
+	else
+		MCS(1064, 511, 50)
 }
-clickFirstCarSalesman(isAdd) {
-clickMax()
-clickMarket()
-if(isAdd)
-MCS(909, 515, 50)
-else
-MCS(955, 517, 50)
+clickCarSalesman(isAdd) {
+	clickMax()
+	clickMarket()
+	if(isAdd)
+		MCS(909, 515, 50)
+	else
+		MCS(955, 517, 50)
 }
 buyAds(carRow, adRow) {
-;TODO make this real
-MCS(1135, 513, 50)
-MCS(929, 561, 50)
+	;TODO make this real (when i produce >2 cars)
+	MCS(1135, 513, 50)
+	MCS(929, 561, 50)
 }
 autoPrice(num) {
-clickMarket()
-MCS(1043, 516, 50) ;sales price
-MCS(1053, 558, 50) ;auto
-checkAutoButtonOn()
-MCS(968, 695, 50) ;OK
+	clickMarket()
+	MCS(1043, 516, 50) ;sales price
+	MCS(1053, 558, 50) ;auto
+	checkAutoButtonOn()
+	MCS(968, 695, 50) ;OK
 }
 buildingButton(y) {
-clickBuildings()
-MCS(1200, y, 100)
-clickBuildingYes()
+	clickBuildings()
+	MCS(1200, y, 100)
+	clickBuildingYes()
 }
 
 buyMainBuilding() {
-buildingButton(445)
+	buildingButton(445)
 }
 buyProductionHall() {
-buildingButton(484)
+	buildingButton(484)
 }
 buyDesignHall() {
-buildingButton(520)
+	buildingButton(520)
 }
 buyResearchCenter() {
-buildingButton(553)
+	buildingButton(553)
 }
 buyWarehouse() {
-buildingButton(588)
+	buildingButton(588)
 }
 buyCarStorage() {
-buildingButton(625)
+	buildingButton(625)
 }
 buyCarShowcase() {
-buildingButton(659)
+	buildingButton(659)
 }
 
 
 clickBuildingYes() {
-MCS(844, 614, 50) 
+	MCS(844, 614, 50) 
 }
 
 getMaxLoan() {
-clickGetLoan()
-MCS(625, 655, 50)
-Send 9999999999
-MCS(888, 711, 50)
+	clickGetLoan()
+	MCS(625, 655, 50)
+	Send 9999999999
+	MCS(888, 711, 50)
 }
