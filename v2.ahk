@@ -326,10 +326,10 @@ CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 CoordMode, Tooltip, Screen
 SetFormat, float, 0.2
-getDefaults()
 import()
 go := 0
 While(!GetKeyState("End")) {
+	getDefaults()
 	if(go) {
 	}
 	rebirth()
@@ -363,7 +363,6 @@ While(!GetKeyState("End")) {
 
 
 	save()
-	return
 }
 Tooltip
 return
@@ -489,6 +488,7 @@ designTheCarPart1() { ;max speed/HP
 	clickDesign()
 	clickMax()
 	checkButtonOn()
+	sleep, 100
 	makeBrakes(1)
 	makeTires(1)
 	makeTank(1)
@@ -564,6 +564,7 @@ if(GetKeyState("end"))
 	return
 	stringToSend = waiting for %name%
 	stableTooltip(stringToSend, 1)
+	sleep, 100
 	MCS(tabX, 478, 50)
 	bluePrintSpot(row)
 	clearAll()
@@ -580,7 +581,9 @@ makeWrapUp(row) {
 	MCS(1043, y, 50) ;add
 	waitForColorVisibleQuick(593, y, blue)
 	checkForBuildingReplace(row)
+	sleep, 100
 	clickDesign()
+	sleep, 200
 	if(constantBuildingCheck) {
 		while(colorIsVisibleQuick(593, y, blue)) {
 			checkForBuildingReplace(row)
@@ -688,10 +691,10 @@ makeBrakes(row) {
 	if(row == 1) {
 		loop, 8
 			MCS(930, 733, fastClickSpeed) ;heatProduction
-		loop, 16
+		loop, 18
 			MCS(932, 763, fastClickSpeed) ;Power
 	} else {
-		loop, 20
+		loop, 25
 			MCS(929, 524, fastClickSpeed) ;Visual
 	}
 	makeWrapUp(row)
