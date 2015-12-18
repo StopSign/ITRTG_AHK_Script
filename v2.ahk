@@ -25,9 +25,6 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 
 
-
-
-
 ;this needed to be here a long time ago
 ;Used by pressing alt ` it writes in notepadd++
 ;the function to click at that spot
@@ -275,25 +272,7 @@ sleep, 150
 
 
 
-
-
-
-
-
 ;_________________GO BACK DOWN
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -322,7 +301,7 @@ mainBuildingsStopAt := 4
 researchBuildings := 1
 researchBuildingsStopAt := 3
 designBuildings := 1
-designBuildingsStopAt := 0
+designBuildingsStopAt := 4
 buttonColor := 0x202101
 hoverButtonColor := 0x313202
 }
@@ -604,13 +583,14 @@ if(GetKeyState("end"))
 makeWrapUp(row) {
 	global blue
 	global constantBuildingCheck
+	sleep, 100
 	bluePrintCreate()
+	sleep, 100
 	if(GetKeyState("end"))
 		return
 	checkButtonOn()
 	y := 545 + row * 35
 	MCS(1043, y, 50) ;add
-	waitForColorVisibleQuick(593, y, blue)
 	checkForBuildingReplace(row)
 	sleep, 100
 	clickDesign()
@@ -650,23 +630,23 @@ chooseLatestPartsWhileCreatingCar()
 return
 
 chooseLatestPartsWhileCreatingCar() {
-	MCS(745, 558, 100) ;Chassis
-	findLowestColor(1068, 521, 1068, 650)
-	MCS(745, 594, 100) ;Tires
-	findLowestColor(1068, 521, 1068, 650)
-	MCS(746, 630, 100) ;Brakes
-	findLowestColor(1068, 521, 1068, 650)
-	MCS(746, 665, 100) ;Engine
-	findLowestColor(1068, 521, 1068, 650)
-	MCS(1082, 559, 100) ;Electronics
-	findLowestColor(1068, 521, 1068, 650)
-	MCS(1082, 596, 100) ;Cooler
-	findLowestColor(1068, 521, 1068, 650)
-	MCS(1083, 630, 100) ;Tanks
-	findLowestColor(1068, 521, 1068, 650)
-	MCS(1081, 664, 100) ;Body
-	findLowestColor(1068, 521, 1068, 650)
-	sleep, 100
+	MCS(745, 558, 150) ;Chassis
+	findLowestColor(1068, 521, 1070, 650)
+	MCS(745, 594, 150) ;Tires
+	findLowestColor(1068, 521, 1070, 650)
+	MCS(746, 630, 150) ;Brakes
+	findLowestColor(1068, 521, 1070, 650)
+	MCS(746, 665, 150) ;Engine
+	findLowestColor(1068, 521, 1070, 650)
+	MCS(1082, 559, 150) ;Electronics
+	findLowestColor(1068, 521, 1070, 650)
+	MCS(1082, 596, 150) ;Cooler
+	findLowestColor(1068, 521, 1070, 650)
+	MCS(1083, 630, 150) ;Tanks
+	findLowestColor(1068, 521, 1070, 650)
+	MCS(1081, 664, 150) ;Body
+	findLowestColor(1068, 521, 1070, 650)
+	sleep, 150
 }
 
 findLowestColor(x, y, x2, y2) {
@@ -676,21 +656,17 @@ findLowestColor(x, y, x2, y2) {
 		return
 	MouseMove, 888, 585, 1
 	loopY := y2
+	sleep, 100
+	MouseMove, 379, 498, 1
 	while(loopY > y1) {
 		PixelSearch, Px, Py, %x%, %loopY%, %x2%, %loopY%, %buttonColor%, 3, Fast
 		if (ErrorLevel) {
-			;PixelSearch, Px2, Py2, %x%, %loopY%, %x2%, %loopY%, %hoverButtonColor%, 3, Fast
-			;if (ErrorLevel) {
-			;
-			;} else {
-			;	MCS(Px2, Py2, 50)
-			;	return
-			;}
+
 		} else {
-			MCS(Px, Py, 50)
+			MCS(Px, Py, 100)
 			return
 		}
-		loopY := loopY - 6
+		loopY := loopY - 4
 	}
 }
 
@@ -702,10 +678,10 @@ makeTires(row) {
 	if(row == 1) {
 		loop, 3
 			MCS(928, 734, fastClickSpeed) ;HeatProduction
-		loop, 17
+		loop, 35
 			MCS(929, 705, fastClickSpeed) ;Grip
 	} else {
-		loop, 20
+		loop, 40
 			MCS(921, 522, fastClickSpeed) ;Visual
 	}
 	makeWrapUp(row)
@@ -716,10 +692,10 @@ makeTank(row) {
 		return
 	makeStart(1072, row, "tank")
 	if(row == 1) {
-		loop, 20
+		loop, 35
 			MCS(918, 704, fastClickSpeed) ;Capacity
 	} else {
-		loop, 20
+		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
 	}
 	makeWrapUp(row)
@@ -730,12 +706,12 @@ makeBrakes(row) {
 		return
 	makeStart(776, row, "brakes")
 	if(row == 1) {
-		loop, 8
+		loop, 11
 			MCS(930, 733, fastClickSpeed) ;heatProduction
-		loop, 18
+		loop, 25
 			MCS(932, 763, fastClickSpeed) ;Power
 	} else {
-		loop, 25
+		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
 	}
 	makeWrapUp(row)
@@ -746,10 +722,12 @@ makeCooler(row) {
 		return
 	makeStart(996, row, "cooler")
 	if(row == 1) {
-		loop, 25
+		loop, 6
+			MCS(930, 735, 50) ;power
+		loop, 35
 			MCS(931, 704, fastClickSpeed) ;efficiency
 	} else {
-		loop, 20
+		loop, 40
 			MCS(929, 524, fastClickSpeed) ;Visual
 	}
 	makeWrapUp(row)
@@ -760,12 +738,12 @@ makeBody(row) {
 		return
 	makeStart(1141, row, "body")
 	if(row == 1) {
-		loop, 9
+		loop, 15
 			MCS(924, 710, fastClickSpeed) ;capacity
-		loop, 11
+		loop, 20
 			MCS(927, 646, fastClickSpeed) ;weight
 	} else {
-		loop, 20
+		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
 	}
 	makeWrapUp(row)
@@ -777,12 +755,12 @@ makeChassis(row) {
 		return
 	makeStart(630, row, "chassis")
 	if(row == 1) {
-		loop, 3
+		loop, 10
 			MCS(930, 734, fastClickSpeed) ;max weight
-		loop, 17
+		loop, 25
 			MCS(928, 675, fastClickSpeed) ;weight
 	} else {
-		loop, 20
+		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
 	}
 	makeWrapUp(row)
@@ -797,13 +775,13 @@ makeEngine(row) {
 		MCS(918, 795, fastClickSpeed) ;cylinder
 		loop, 7
 			MCS(929, 762, fastClickSpeed) ;power
-		loop, 16
+		loop, 35
 			MCS(926, 704, fastClickSpeed) ;efficiency
 	} else if(row == 3) {
-		loop, 25
+		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
 	} else {
-		loop, 25
+		loop, 35
 			MCS(917, 701, fastClickSpeed) ;Efficiency
 	}
 	makeWrapUp(row)
@@ -814,10 +792,10 @@ makeElectronics(row) {
 		return
 	makeStart(926, row, "electronics")
 	if(row == 1) {
-		loop, 20
+		loop, 35
 			MCS(927, 705, fastClickSpeed) ;efficiency
 	} else {
-		loop, 20
+		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
 	}
 	makeWrapUp(row)
