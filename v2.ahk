@@ -280,28 +280,32 @@ sleep, 150
 
 
 
+
+
+
 startOver() {
 ;todo
 }
 
 getDefaults() {
 global
+bonusPoints := 201
 blue := 0x67422A
 constantBuildingCheck := 1 ;0 if you want to chat while building
 carFinishedWhite := 0xFCFCFB
 tooltipX := 786
 tooltipY := 332
-fastClickSpeed := 50
+fastClickSpeed := 10
 shouldBuildResearch := 1
 shouldBuildDesign := 1
 designHallDone := 0
-researchDone := 0
+researchDone := 1
 mainBuildings := 2
-mainBuildingsStopAt := 4
+mainBuildingsStopAt := 3
 researchBuildings := 1
-researchBuildingsStopAt := 3
+researchBuildingsStopAt := 1
 designBuildings := 1
-designBuildingsStopAt := 4
+designBuildingsStopAt := 3
 buttonColor := 0x202101
 hoverButtonColor := 0x313202
 }
@@ -320,9 +324,9 @@ While(!GetKeyState("End")) {
 	}
 	rebirth()
 	buyMainBuilding()
-	buyResearchCenter()
+	;buyResearchCenter()
 	buyDesignHall()
-	buyProductionHall()
+	;buyProductionHall()
 	clickHireWorker()
 	clickCarWorker(1)
 	clickHireSalesman()
@@ -331,20 +335,20 @@ While(!GetKeyState("End")) {
 	autoPrice(1)
 	if(GetKeyState("end"))
 		return
-	waitForBuildingToFinishRebuildAndHandleStaff(4, 1) ;research center
+	;waitForBuildingToFinishRebuildAndHandleStaff(4, 1) ;research center
 	waitForBuildingToFinishRebuildAndHandleStaff(3, 1) ;design hall
 
 	designTheCarPart1()
 	waitForCarToFinish(1)
-	getMaxLoan()
-	designTheCarPart2()
-	shouldBuildResearch := 0
-	waitForCarToFinish(2)
-	designTheCarPart3()
-	shouldBuildDesign := 0
-	waitForCarToFinish(3)
+	;getMaxLoan()
+	;designTheCarPart2()
+	;shouldBuildResearch := 0
+	;waitForCarToFinish(2)
+	;designTheCarPart3()
+	;shouldBuildDesign := 0
+	;waitForCarToFinish(3)
 
-
+	return
 	save()
 }
 Tooltip
@@ -352,15 +356,20 @@ return
 
 waitForCarToFinish(row) {
 	global carFinishedWhite
+	global designHallDone
+	global researchDone
 	y := 545 + row * 35
 	stableTooltip("waiting for the car design to finish", 0)
 	clickDesign()
-	MCS(1030, y, 200) ;designers on +
+	MCS(1030, y, 150) ;designers on +
 	while(!GetKeyState("end") && colorIsNotVisibleQuick(899, y, carFinishedWhite)) { ;wait for the white of "finished" to be seen
+		if(researchDone && designHallDone) {
+			continue ;don't click
+		}
 		checkForBuildingReplace(row)
 		sleep, 100
 		clickDesign()
-		sleep, 200
+		MCS(1030, y, 150) ;designers on +
 	}
 	Tooltip
 }
@@ -380,7 +389,7 @@ checkForBuildingReplace(buildRow) {
 		return
 	global blue
 	clickBuildings()
-	sleep, 200
+	sleep, 150
 	if(colorIsNotVisibleQuick(593, 441, blue)) { ;main office
 		if((mainBuildings < mainBuildingsStopAt) || mainBuildingsStopAt == 0) {
 			buildingButton(441)
@@ -397,7 +406,7 @@ checkForBuildingReplace(buildRow) {
 				clickCarSalesman(1)
 			}
 			clickBuildings()
-			sleep, 200
+			sleep, 150
 		}
 	} 
 	if(!designHallDone && colorIsNotVisibleQuick(593, 511, blue)) { ;design hall
@@ -406,9 +415,9 @@ checkForBuildingReplace(buildRow) {
 			designBuildings++
 		} else
 			designHallDone := 1
-		sleep, 200
+		sleep, 150
 		handleAfterBuild(3, buildRow)
-		sleep, 200
+		sleep, 150
 	} 
 	if(!researchDone && colorIsNotVisibleQuick(593, 546, blue)) { ;research center
 		if(shouldBuildResearch && ((researchBuildings < researchBuildingsStopAt) || researchBuildingsStopAt == 0)) {
@@ -416,9 +425,9 @@ checkForBuildingReplace(buildRow) {
 			researchBuildings++
 		} else
 			researchDone := 1
-		sleep, 200
+		sleep, 150
 		handleAfterBuild(4, buildRow)
-		sleep, 200
+		sleep, 150
 	}
 }
 
@@ -461,18 +470,8 @@ waitForBuilding(row, willRebuild) {
 		name = Production Hall
 	} else if(row == 3) {
 		name = Design Hall
+		;viewCarSouls(3)
 	} else if(row == 4) {
-		clickCarSouls()
-		count := 0
-		loop, 10 {
-			if(GetKeyState("end"))
-				return
-			count++
-			theMath := (count / 2)
-			theString = Viewing car souls for %theMath% seconds `nOut of 5
-			stableTooltip(theString, 0)
-			sleep, 500
-		}
 		name = Research Center
 	}
 	clickBuildings()
@@ -483,6 +482,21 @@ waitForBuilding(row, willRebuild) {
 	Tooltip
 	if(willRebuild)
 		buildingButton(y)
+}
+
+viewCarSouls(seconds) {
+		clickCarSouls()
+		twice := (seconds * 2)
+		count := 0
+		loop, %twice% {
+			if(GetKeyState("end"))
+				return
+			count++
+			theMath := (count / 2)
+			theString = Viewing car souls for %theMath% seconds `nOut of %seconds%
+			stableTooltip(theString, 0)
+			sleep, 500
+		}
 }
 
 chooseResearchBodyLooks() {
@@ -499,19 +513,45 @@ designTheCarPart1() { ;max speed/HP
 	clickMax()
 	checkButtonOn()
 	sleep, 100
-	makeBrakes(1)
+	;makeBrakes(1)
 	makeTires(1)
 	makeTank(1)
-	makeEngine(1)
 	makeCooler(1)
 	makeElectronics(1)
 	makeChassis(1)
 	makeBody(1)
+	makeEngine(1)
 	MCS(1213, 478, 50) ;car
 	bluePrintSpot(1)
-	chooseLatestPartsWhileCreatingCar()
+	chooseLatestPartsWhileCreatingCar2()
+	;chooseSpecificParts()
+	return
 	MCS(1204, 777, 150) ;car create
 	MCS(1018, 587, 200) ;designers on +
+}
+
+chooseSpecificParts() {
+	sleep, 50
+	MCS(746, 561, 50) ;Chassis
+	clickChoose()
+	MCS(744, 593, 50) ;Tires
+	clickChoose()
+	MCS(742, 627, 50) ;Brakes
+	MCS(1094, 539, 50) ;
+	MCS(746, 661, 50) ;Engine
+	clickChoose()
+	MCS(1083, 559, 50) ;Electronics
+	clickChoose()
+	MCS(1083, 594, 50) ;Cooler
+	clickChoose()
+	MCS(1079, 628, 50) ;Tank
+	clickChoose()
+	MCS(1084, 665, 50) ;Body
+	clickChoose()
+	sleep, 50
+}
+clickChoose() {
+	MCS(1092, 574, 50) ;
 }
 
 designTheCarPart2() { ;fuel/mpg
@@ -577,15 +617,17 @@ if(GetKeyState("end"))
 	sleep, 100
 	MCS(tabX, 478, 50)
 	bluePrintSpot(row)
+	MCS(1143, 482, 50) ;Add 10 bonus points
 	clearAll()
 }
 
 makeWrapUp(row) {
 	global blue
 	global constantBuildingCheck
+	loop, 3
+		Click
 	sleep, 100
 	bluePrintCreate()
-	sleep, 100
 	if(GetKeyState("end"))
 		return
 	checkButtonOn()
@@ -594,13 +636,13 @@ makeWrapUp(row) {
 	checkForBuildingReplace(row)
 	sleep, 100
 	clickDesign()
-	sleep, 200
+	sleep, 100
 	if(constantBuildingCheck) {
 		while(colorIsVisibleQuick(593, y, blue)) {
 			checkForBuildingReplace(row)
 			sleep, 100
 			clickDesign()
-			sleep, 200
+			sleep, 100
 		}
 	} else {
 		waitForColorNotVisibleQuick(593, y, blue)
@@ -608,16 +650,15 @@ makeWrapUp(row) {
 	Tooltip
 }
 
-!5:: ;global testing
-getDefaults()
-check()
-MsgBox, %blue%
+!5::
+CoordMode, Mouse, Screen
+CoordMode, Pixel, Screen
+CoordMode, Tooltip, Screen
+x := 2
+y := 3
+loop, % x+(y/2)
+Send a
 return
-
-check() {
-global blue
-MsgBox, %blue%
-}
 
 
 !6::
@@ -625,7 +666,8 @@ CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 CoordMode, Tooltip, Screen
 getDefaults()
-chooseLatestPartsWhileCreatingCar()
+chooseSpecificParts()
+;chooseLatestPartsWhileCreatingCar2()
 
 return
 
@@ -649,6 +691,27 @@ chooseLatestPartsWhileCreatingCar() {
 	sleep, 150
 }
 
+chooseLatestPartsWhileCreatingCar2() {
+	lowY := 600
+	MCS(745, 558, 150) ;Chassis
+	findLowestColor(1068, 521, 1068, lowY)
+	MCS(745, 594, 150) ;Tires
+	findLowestColor(1068, 521, 1068, lowY)
+	MCS(746, 630, 150) ;Brakes
+	findLowestColor(1068, 521, 1068, lowY)
+	MCS(746, 665, 150) ;Engine
+	findLowestColor(1068, 521, 1068, lowY)
+	MCS(1082, 559, 150) ;Electronics
+	findLowestColor(1068, 521, 1068, lowY)
+	MCS(1082, 596, 150) ;Cooler
+	findLowestColor(1068, 521, 1068, lowY)
+	MCS(1083, 630, 150) ;Tanks
+	findLowestColor(1068, 521, 1068, lowY)
+	MCS(1081, 664, 150) ;Body
+	findLowestColor(1068, 521, 1068, lowY)
+	sleep, 150
+}
+
 findLowestColor(x, y, x2, y2) {
 	global buttonColor
 	global hoverButtonColor
@@ -661,24 +724,24 @@ findLowestColor(x, y, x2, y2) {
 	while(loopY > y1) {
 		PixelSearch, Px, Py, %x%, %loopY%, %x2%, %loopY%, %buttonColor%, 3, Fast
 		if (ErrorLevel) {
-
 		} else {
 			MCS(Px, Py, 100)
 			return
 		}
-		loopY := loopY - 4
+		loopY := loopY - 8
 	}
 }
 
 makeTires(row) {
+	global bonusPoints
 	global fastClickSpeed
 	if(GetKeyState("End"))
 		return
 	makeStart(702, row, "tires")
 	if(row == 1) {
-		loop, 3
+		loop, 3 ; % (bonusPoints / 6) +1
 			MCS(928, 734, fastClickSpeed) ;HeatProduction
-		loop, 35
+		loop, 18 ; % bonusPoints * 5/6 + 14
 			MCS(929, 705, fastClickSpeed) ;Grip
 	} else {
 		loop, 40
@@ -687,13 +750,17 @@ makeTires(row) {
 	makeWrapUp(row)
 }
 makeTank(row) {
+	global bonusPoints
 	global fastClickSpeed
 	if(GetKeyState("End"))
 		return
 	makeStart(1072, row, "tank")
 	if(row == 1) {
-		loop, 35
+		MCS(877, 671, fastClickSpeed) ;Weight
+		loop, 15 ; % (bonusPoints*2/3)+10
 			MCS(918, 704, fastClickSpeed) ;Capacity
+		loop, 7
+			MCS(927, 523, fastClickSpeed) ;Visual
 	} else {
 		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
@@ -701,14 +768,15 @@ makeTank(row) {
 	makeWrapUp(row)
 }
 makeBrakes(row) {
+	global bonusPoints
 	global fastClickSpeed
 	if(GetKeyState("End"))
 		return
 	makeStart(776, row, "brakes")
 	if(row == 1) {
-		loop, 11
+		loop, 5 ; % (bonusPoints / 6) +1
 			MCS(930, 733, fastClickSpeed) ;heatProduction
-		loop, 25
+		loop, 17 ; % bonusPoints * 5/6 + 14
 			MCS(932, 763, fastClickSpeed) ;Power
 	} else {
 		loop, 35
@@ -717,14 +785,15 @@ makeBrakes(row) {
 	makeWrapUp(row)
 }
 makeCooler(row) {
+	global bonusPoints
 	global fastClickSpeed
 	if(GetKeyState("End"))
 		return
 	makeStart(996, row, "cooler")
 	if(row == 1) {
-		loop, 6
-			MCS(930, 735, 50) ;power
-		loop, 35
+		;loop, 6
+			;MCS(930, 735, fastClickSpeed) ;power
+		loop, 22 ; % bonusPoints+16
 			MCS(931, 704, fastClickSpeed) ;efficiency
 	} else {
 		loop, 40
@@ -733,15 +802,18 @@ makeCooler(row) {
 	makeWrapUp(row)
 }
 makeBody(row) {
+	global bonusPoints
 	global fastClickSpeed
 	if(GetKeyState("End"))
 		return
 	makeStart(1141, row, "body")
 	if(row == 1) {
-		loop, 15
+		loop, 3 ; % (bonusPoints / 3)-6
 			MCS(924, 710, fastClickSpeed) ;capacity
-		loop, 20
+		loop, 5 ; % (bonusPoints / 3)+11
 			MCS(927, 646, fastClickSpeed) ;weight
+		loop, 15 ; % (bonusPoints / 3) +12
+			MCS(930, 523, fastClickSpeed) ;Visual
 	} else {
 		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
@@ -751,14 +823,17 @@ makeBody(row) {
 
 makeChassis(row) {
 	global fastClickSpeed
+	global bonusPoints
 	if(GetKeyState("End"))
 		return
 	makeStart(630, row, "chassis")
 	if(row == 1) {
-		loop, 10
+		loop, 1 ;  % 6 + (bonusPoints/10)
 			MCS(930, 734, fastClickSpeed) ;max weight
-		loop, 25
+		loop, 4 ; % bonusPoints/10
 			MCS(928, 675, fastClickSpeed) ;weight
+		loop, 17 ; % (bonusPoints*8/10) +9
+			MCS(929, 524, fastClickSpeed) ;Visual
 	} else {
 		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
@@ -767,15 +842,16 @@ makeChassis(row) {
 }
 
 makeEngine(row) {
+	global bonusPoints
 	global fastClickSpeed
 	if(GetKeyState("End"))
 		return
 	makeStart(847, row, "engine")
 	if(row == 1) {
-		MCS(918, 795, fastClickSpeed) ;cylinder
-		loop, 7
+		;MCS(918, 795, fastClickSpeed) ;cylinder
+		loop, 1
 			MCS(929, 762, fastClickSpeed) ;power
-		loop, 35
+		loop, 21 ; % bonusPoints+16
 			MCS(926, 704, fastClickSpeed) ;efficiency
 	} else if(row == 3) {
 		loop, 35
@@ -787,12 +863,13 @@ makeEngine(row) {
 	makeWrapUp(row)
 }
 makeElectronics(row) {
+	global bonusPoints
 	global fastClickSpeed
 	if(GetKeyState("End"))
 		return
 	makeStart(926, row, "electronics")
 	if(row == 1) {
-		loop, 35
+		loop, 21 ;% bonusPoints+14
 			MCS(927, 705, fastClickSpeed) ;efficiency
 	} else {
 		loop, 35
@@ -818,7 +895,7 @@ bluePrintSpot(row) {
 clearAll() {
 	global fastClickSpeed
 	sleep, 200
-	loop, 2 {
+	loop, 1 {
 		if(GetKeyState("end"))
 			return
 		MCS(880, 524, fastClickSpeed)
