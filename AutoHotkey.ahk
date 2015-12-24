@@ -1,7 +1,34 @@
 
+
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+
+!`::
+CoordMode, Mouse, Screen
+CoordMode, Pixel, Screen
+CoordMode, Tooltip, Screen
+MouseGetPos, xpos, ypos
+WinGetTitle, Title, A
+StringGetPos, pos, Title, Notepad++
+if(pos < 0)
+	MCS(268, 1065, 100) ;notepad++ icon
+Send {Enter}MCS(%xpos%, %ypos%, 50){Space}{;}
+MouseMove, xpos, ypos, 0
+return
+
+!q::
+CoordMode, Mouse, Screen
+CoordMode, Pixel, Screen
+CoordMode, Tooltip, Screen
+MouseGetPos, xpos, ypos
+WinGetTitle, Title, A
+StringGetPos, pos, Title, Notepad++
+if(pos < 0)
+	MCS(268, 1065, 100) ;notepad++ icon
+Send %xpos%, %ypos%
+MouseMove, xpos, ypos, 0
+return
 
 MCS(x, y, t) {
 	if(GetKeyState("end"))
@@ -77,6 +104,8 @@ startOver() {
 	killGods2()
 	start()
 }
+
+
 
 start() {
 	go := 0
@@ -293,13 +322,13 @@ Monuments2() {
 	checkCreateClonesOn()
 
 	; buyStone(4)
-	MCS(917, 395, 50) ;monuments tab
-	
-	clickScrollBar(1240, 562) ;scroll up
 	MysticGardenUpgrades()
 }
 
 MysticGardenUpgrades() {
+	MCS(917, 395, 50) ;monuments tab
+	clickScrollBar(1240, 562) ;scroll up
+	MCS(1219, 448, 50) ; max
 	MCS(1119, 692, 50)
 	MCS(1119, 689, 3500)
 	MCS(1191, 692, 50)
@@ -398,7 +427,7 @@ Create2() {
 	waitForColorVisibleQuick(1010, 756, green)
 	MCS(1100, 820, 50) ;village
 	waitForColorVisibleQuick(1010, 816, green)
-	MCST(1104, 727, 21) ;river
+	MCST(1104, 727, 17) ;river
 	; MCST(1104, 819, 8) ;village
 	; createAmount("Continent", 6)
 	sleep, 100
@@ -1024,16 +1053,6 @@ MsgBox, end result %totalWins% wins and %totalLoss% losses, %thePercent% percent
 
 
 }
-
-!7::
-CoordMode, Mouse, Screen
-CoordMode, Pixel, Screen
-MsgBox, here
-b := healthIsLow() ; 
-MsgBox, here2
-c := checkIfDone() ; healthIsLow()
-MsgBox, %b% <-  --> %c%
-return
 
 
 import() {

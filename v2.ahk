@@ -103,6 +103,16 @@ sleep, 10
 }
 return
 
+!0::
+x := 3
+loop, 3 {
+	Tooltip, %x%
+	sleep, 1000
+	s--
+}
+Tooltip, Go!
+return
+
 !3:: ;scrolls down 4, used when on the laptop and i don't have a mouse to scroll with
 CoordMode, mouse, screen
 CoordMode, pixel, screen
@@ -289,7 +299,7 @@ startOver() {
 
 getDefaults() {
 global
-bonusPoints := 201
+bonusPoints := 225
 blue := 0x67422A
 constantBuildingCheck := 1 ;0 if you want to chat while building
 carFinishedWhite := 0xFCFCFB
@@ -299,16 +309,36 @@ fastClickSpeed := 10
 shouldBuildResearch := 1
 shouldBuildDesign := 1
 designHallDone := 0
-researchDone := 1
+researchDone := 0
 mainBuildings := 2
-mainBuildingsStopAt := 3
+mainBuildingsStopAt := 0
 researchBuildings := 1
-researchBuildingsStopAt := 1
+researchBuildingsStopAt := 0
 designBuildings := 1
-designBuildingsStopAt := 3
+designBuildingsStopAt := 0
 buttonColor := 0x202101
 hoverButtonColor := 0x313202
+tiresHeat := 3
+tiresGrip := 18
+tankCapacity := 6
+tankVisual := 17
+brakesPower := 0 ;10
+brakesHP := 0 ;3
+brakesEfficiency := 0 ;3
+brakesVisual := 25
+coolerPower := 0 ;6
+coolerEfficiency := 22
+bodyCapacity := 9
+bodyVisual := 23
+chassisWeight := 6 
+chassisVisual := 21
+engineWeight := 2
+engineCylinder := 0
+enginePower = 3
+engineEfficiency := 22
+electronicsEfficiency:= 21
 }
+
 
 ;fds to search
 !4::
@@ -348,7 +378,6 @@ While(!GetKeyState("End")) {
 	;shouldBuildDesign := 0
 	;waitForCarToFinish(3)
 
-	return
 	save()
 }
 Tooltip
@@ -374,6 +403,18 @@ waitForCarToFinish(row) {
 	Tooltip
 }
 
+!7::
+
+CoordMode, Mouse, Screen
+CoordMode, Pixel, Screen
+CoordMode, Tooltip, Screen
+getDefaults()
+While(!GetKeyState("End")) {
+checkForBuildingReplace(1)
+}
+
+return
+
 checkForBuildingReplace(buildRow) {
 	global shouldBuildResearch
 	global shouldBuildDesign
@@ -394,14 +435,9 @@ checkForBuildingReplace(buildRow) {
 		if((mainBuildings < mainBuildingsStopAt) || mainBuildingsStopAt == 0) {
 			buildingButton(441)
 			mainBuildings++
-			if(mainBuildings == 2) {
-			} else if(mainBuildings==4) {
+			if(mainBuildings>=3) {
 				clickHireWorker()
 				clickCarWorker(1)
-				clickHireSalesman()
-				clickCarSalesman(1)
-			}else if(mainBuildings==3) {
-				clickHireSalesman()
 				clickHireSalesman()
 				clickCarSalesman(1)
 			}
@@ -513,7 +549,7 @@ designTheCarPart1() { ;max speed/HP
 	clickMax()
 	checkButtonOn()
 	sleep, 100
-	;makeBrakes(1)
+	makeBrakes(1)
 	makeTires(1)
 	makeTank(1)
 	makeCooler(1)
@@ -525,7 +561,6 @@ designTheCarPart1() { ;max speed/HP
 	bluePrintSpot(1)
 	chooseLatestPartsWhileCreatingCar2()
 	;chooseSpecificParts()
-	return
 	MCS(1204, 777, 150) ;car create
 	MCS(1018, 587, 200) ;designers on +
 }
@@ -735,13 +770,15 @@ findLowestColor(x, y, x2, y2) {
 makeTires(row) {
 	global bonusPoints
 	global fastClickSpeed
+	global tiresHeat
+	global tiresGrip
 	if(GetKeyState("End"))
 		return
 	makeStart(702, row, "tires")
 	if(row == 1) {
-		loop, 3 ; % (bonusPoints / 6) +1
+		loop, %tiresHeat% ; % (bonusPoints / 6) +1
 			MCS(928, 734, fastClickSpeed) ;HeatProduction
-		loop, 18 ; % bonusPoints * 5/6 + 14
+		loop, %tiresGrip% ; % bonusPoints * 5/6 + 14
 			MCS(929, 705, fastClickSpeed) ;Grip
 	} else {
 		loop, 40
@@ -751,15 +788,16 @@ makeTires(row) {
 }
 makeTank(row) {
 	global bonusPoints
+	global tankCapacity
+	global tankVisual
 	global fastClickSpeed
 	if(GetKeyState("End"))
 		return
 	makeStart(1072, row, "tank")
 	if(row == 1) {
-		MCS(877, 671, fastClickSpeed) ;Weight
-		loop, 15 ; % (bonusPoints*2/3)+10
+		loop, %tankCapacity% ; % (bonusPoints*2/3)+10
 			MCS(918, 704, fastClickSpeed) ;Capacity
-		loop, 7
+		loop, %tankVisual%
 			MCS(927, 523, fastClickSpeed) ;Visual
 	} else {
 		loop, 35
@@ -770,14 +808,22 @@ makeTank(row) {
 makeBrakes(row) {
 	global bonusPoints
 	global fastClickSpeed
+	global brakesPower
+	global brakesHP
+	global brakesEfficiency
+	global brakesVisual
 	if(GetKeyState("End"))
 		return
 	makeStart(776, row, "brakes")
 	if(row == 1) {
-		loop, 5 ; % (bonusPoints / 6) +1
-			MCS(930, 733, fastClickSpeed) ;heatProduction
-		loop, 17 ; % bonusPoints * 5/6 + 14
-			MCS(932, 763, fastClickSpeed) ;Power
+		;loop, %brakesPower%
+		;	MCS(930, 764, 50) ;Power
+		;loop, %brakesHP%
+		;	MCS(929, 734, 50) ;HP
+		;loop, %brakesEfficiency%
+		;	MCS(929, 702, 50) ;efficiency
+		loop, %brakesVisual%
+			MCS(928, 522, 50) ;visual
 	} else {
 		loop, 35
 			MCS(929, 524, fastClickSpeed) ;Visual
@@ -787,13 +833,15 @@ makeBrakes(row) {
 makeCooler(row) {
 	global bonusPoints
 	global fastClickSpeed
+	global coolerPower
+	global coolerEfficiency
 	if(GetKeyState("End"))
 		return
 	makeStart(996, row, "cooler")
 	if(row == 1) {
-		;loop, 6
-			;MCS(930, 735, fastClickSpeed) ;power
-		loop, 22 ; % bonusPoints+16
+		loop, %coolerPower%
+			MCS(930, 735, fastClickSpeed) ;power
+		loop, %coolerEfficiency% ; % bonusPoints+16
 			MCS(931, 704, fastClickSpeed) ;efficiency
 	} else {
 		loop, 40
@@ -804,15 +852,15 @@ makeCooler(row) {
 makeBody(row) {
 	global bonusPoints
 	global fastClickSpeed
+	global bodyCapacity
+	global bodyVisual
 	if(GetKeyState("End"))
 		return
 	makeStart(1141, row, "body")
 	if(row == 1) {
-		loop, 3 ; % (bonusPoints / 3)-6
+		loop, %bodyCapacity% ; % (bonusPoints / 3)-6
 			MCS(924, 710, fastClickSpeed) ;capacity
-		loop, 5 ; % (bonusPoints / 3)+11
-			MCS(927, 646, fastClickSpeed) ;weight
-		loop, 15 ; % (bonusPoints / 3) +12
+		loop, %bodyVisual% ; % (bonusPoints / 3) +12
 			MCS(930, 523, fastClickSpeed) ;Visual
 	} else {
 		loop, 35
@@ -824,15 +872,15 @@ makeBody(row) {
 makeChassis(row) {
 	global fastClickSpeed
 	global bonusPoints
+	global chassisWeight
+	global chassisVisual
 	if(GetKeyState("End"))
 		return
 	makeStart(630, row, "chassis")
 	if(row == 1) {
-		loop, 1 ;  % 6 + (bonusPoints/10)
+		loop, %chassisWeight% ;  % 6 + (bonusPoints/10)
 			MCS(930, 734, fastClickSpeed) ;max weight
-		loop, 4 ; % bonusPoints/10
-			MCS(928, 675, fastClickSpeed) ;weight
-		loop, 17 ; % (bonusPoints*8/10) +9
+		loop, %chassisVisual% ; % (bonusPoints*8/10) +9
 			MCS(929, 524, fastClickSpeed) ;Visual
 	} else {
 		loop, 35
@@ -844,14 +892,21 @@ makeChassis(row) {
 makeEngine(row) {
 	global bonusPoints
 	global fastClickSpeed
+	global engineWeight
+	global engineCylinder
+	global enginePower
+	global engineEfficiency
 	if(GetKeyState("End"))
 		return
 	makeStart(847, row, "engine")
 	if(row == 1) {
-		;MCS(918, 795, fastClickSpeed) ;cylinder
-		loop, 1
+		loop, %engineCylinder%
+			MCS(918, 795, fastClickSpeed) ;cylinder
+		loop, %engineWeight%
+			MCS(918, 673, 50) ;Weight
+		loop, %enginePower%
 			MCS(929, 762, fastClickSpeed) ;power
-		loop, 21 ; % bonusPoints+16
+		loop, %engineEfficiency%
 			MCS(926, 704, fastClickSpeed) ;efficiency
 	} else if(row == 3) {
 		loop, 35
@@ -865,11 +920,12 @@ makeEngine(row) {
 makeElectronics(row) {
 	global bonusPoints
 	global fastClickSpeed
+	global electronicsEfficiency
 	if(GetKeyState("End"))
 		return
 	makeStart(926, row, "electronics")
 	if(row == 1) {
-		loop, 21 ;% bonusPoints+14
+		loop, %electronicsEfficiency% ;% bonusPoints+14
 			MCS(927, 705, fastClickSpeed) ;efficiency
 	} else {
 		loop, 35
